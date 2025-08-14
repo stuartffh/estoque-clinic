@@ -1,0 +1,732 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "EstoqueClinic API",
+    "version": "1.0.0",
+    "description": "API REST para gestão de estoque de clínicas estéticas com multi-tenancy",
+    "contact": {
+      "name": "EstoqueClinic Support",
+      "email": "suporte@estoqueclinic.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Desenvolvimento Local"
+    },
+    {
+      "url": "https://api.estoqueclinic.com",
+      "description": "Produção"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Token JWT de autenticação. Header: Authorization: Bearer {token}"
+      }
+    },
+    "schemas": {
+      "ClinicGroup": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "code": {"type": "string"},
+          "description": {"type": "string"},
+          "admin_email": {"type": "string", "format": "email"},
+          "admin_phone": {"type": "string"},
+          "subscription_plan": {"type": "string", "enum": ["basic", "premium", "enterprise"]},
+          "subscription_expires_at": {"type": "string", "format": "date-time"},
+          "max_clinics": {"type": "integer"},
+          "max_users": {"type": "integer"},
+          "settings": {"type": "object"},
+          "is_active": {"type": "boolean"},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "Clinic": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "clinic_group_id": {"type": "integer"},
+          "name": {"type": "string"},
+          "cnpj": {"type": "string"},
+          "cro_number": {"type": "string"},
+          "address_street": {"type": "string"},
+          "address_number": {"type": "string"},
+          "address_complement": {"type": "string"},
+          "address_neighborhood": {"type": "string"},
+          "address_city": {"type": "string"},
+          "address_state": {"type": "string"},
+          "address_zipcode": {"type": "string"},
+          "phone": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "website": {"type": "string"},
+          "logo_url": {"type": "string"},
+          "timezone": {"type": "string"},
+          "settings": {"type": "object"},
+          "is_active": {"type": "boolean"},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "AestheticProduct": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "name": {"type": "string"},
+          "brand": {"type": "string"},
+          "category": {"type": "string", "enum": ["botox", "filler", "biostimulator", "equipment", "consumable"]},
+          "subcategory": {"type": "string"},
+          "concentration": {"type": "string"},
+          "volume_ml": {"type": "number"},
+          "units_per_package": {"type": "integer"},
+          "anvisa_registry": {"type": "string"},
+          "manufacturer": {"type": "string"},
+          "active_principle": {"type": "string"},
+          "storage_temp_min": {"type": "number"},
+          "storage_temp_max": {"type": "number"},
+          "shelf_life_months": {"type": "integer"},
+          "description": {"type": "string"},
+          "usage_instructions": {"type": "string"},
+          "contraindications": {"type": "string"},
+          "image_url": {"type": "string"},
+          "barcode": {"type": "string"},
+          "is_controlled": {"type": "boolean"},
+          "requires_prescription": {"type": "boolean"},
+          "is_active": {"type": "boolean"},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "ProductBatch": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "clinic_id": {"type": "integer"},
+          "product_id": {"type": "integer"},
+          "batch_number": {"type": "string"},
+          "manufacturing_date": {"type": "string", "format": "date"},
+          "expiry_date": {"type": "string", "format": "date"},
+          "supplier": {"type": "string"},
+          "supplier_invoice": {"type": "string"},
+          "purchase_price": {"type": "number"},
+          "current_stock": {"type": "integer"},
+          "reserved_stock": {"type": "integer"},
+          "min_stock_alert": {"type": "integer"},
+          "storage_location": {"type": "string"},
+          "storage_temperature": {"type": "number"},
+          "received_by": {"type": "integer"},
+          "notes": {"type": "string"},
+          "status": {"type": "string", "enum": ["active", "expired", "recalled", "depleted"]},
+          "created_at": {"type": "string", "format": "date-time"},
+          "updated_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "InventoryMovement": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "integer"},
+          "clinic_id": {"type": "integer"},
+          "batch_id": {"type": "integer"},
+          "movement_type": {"type": "string", "enum": ["inbound", "outbound", "adjustment", "transfer", "return"]},
+          "quantity": {"type": "integer"},
+          "unit_cost": {"type": "number"},
+          "total_cost": {"type": "number"},
+          "reason": {"type": "string"},
+          "reference_document": {"type": "string"},
+          "procedure_id": {"type": "integer"},
+          "moved_by": {"type": "integer"},
+          "approved_by": {"type": "integer"},
+          "notes": {"type": "string"},
+          "created_at": {"type": "string", "format": "date-time"}
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {"type": "string"},
+          "message": {"type": "string"},
+          "code": {"type": "integer"}
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Verificação de status do servidor"
+    },
+    {
+      "name": "Auth",
+      "description": "Autenticação multi-tenant"
+    },
+    {
+      "name": "Clinic Groups",
+      "description": "Gestão de grupos de clínicas (super admin)"
+    },
+    {
+      "name": "Clinics",
+      "description": "Gestão de clínicas individuais"
+    },
+    {
+      "name": "Aesthetic Products",
+      "description": "Catálogo de produtos estéticos"
+    },
+    {
+      "name": "Inventory",
+      "description": "Gestão de estoque e movimentações"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check do servidor",
+        "description": "Verifica se o servidor está funcionando corretamente",
+        "responses": {
+          "200": {
+            "description": "Servidor funcionando normalmente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {"type": "string"},
+                    "timestamp": {"type": "string", "format": "date-time"},
+                    "uptime": {"type": "number"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Login do usuário",
+        "description": "Autentica usuário e retorna token JWT",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "password"],
+                "properties": {
+                  "email": {"type": "string", "format": "email"},
+                  "password": {"type": "string"},
+                  "clinic_id": {"type": "integer", "description": "ID da clínica (opcional)"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {"type": "string"},
+                    "user": {"type": "object"},
+                    "clinic": {"type": "object"}
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciais inválidas",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Error"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clinic-groups": {
+      "get": {
+        "tags": ["Clinic Groups"],
+        "summary": "Listar grupos de clínicas",
+        "description": "Lista todos os grupos de clínicas (apenas super admin)",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "page", "in": "query", "schema": {"type": "integer", "default": 1}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 10}},
+          {"name": "search", "in": "query", "schema": {"type": "string"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de grupos de clínicas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clinic_groups": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/ClinicGroup"}
+                    },
+                    "pagination": {"type": "object"}
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Acesso negado",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Error"}
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Clinic Groups"],
+        "summary": "Criar grupo de clínicas",
+        "description": "Cria um novo grupo de clínicas (apenas super admin)",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "code", "admin_email"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "code": {"type": "string"},
+                  "description": {"type": "string"},
+                  "admin_email": {"type": "string", "format": "email"},
+                  "admin_phone": {"type": "string"},
+                  "subscription_plan": {"type": "string"},
+                  "subscription_expires_at": {"type": "string", "format": "date-time"},
+                  "max_clinics": {"type": "integer"},
+                  "max_users": {"type": "integer"},
+                  "settings": {"type": "object"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Grupo criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "clinic_group": {"$ref": "#/components/schemas/ClinicGroup"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clinics": {
+      "get": {
+        "tags": ["Clinics"],
+        "summary": "Listar clínicas do grupo",
+        "description": "Lista todas as clínicas do grupo do usuário",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "page", "in": "query", "schema": {"type": "integer", "default": 1}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 10}},
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "is_active", "in": "query", "schema": {"type": "boolean"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de clínicas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "clinics": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Clinic"}
+                    },
+                    "pagination": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Clinics"],
+        "summary": "Criar clínica",
+        "description": "Cria uma nova clínica no grupo do usuário",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "cnpj": {"type": "string"},
+                  "cro_number": {"type": "string"},
+                  "address_street": {"type": "string"},
+                  "address_number": {"type": "string"},
+                  "address_complement": {"type": "string"},
+                  "address_neighborhood": {"type": "string"},
+                  "address_city": {"type": "string"},
+                  "address_state": {"type": "string"},
+                  "address_zipcode": {"type": "string"},
+                  "phone": {"type": "string"},
+                  "email": {"type": "string", "format": "email"},
+                  "website": {"type": "string"},
+                  "logo_url": {"type": "string"},
+                  "timezone": {"type": "string"},
+                  "settings": {"type": "object"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Clínica criada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "clinic": {"$ref": "#/components/schemas/Clinic"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/aesthetic-products": {
+      "get": {
+        "tags": ["Aesthetic Products"],
+        "summary": "Listar produtos estéticos",
+        "description": "Lista todos os produtos do catálogo estético",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "page", "in": "query", "schema": {"type": "integer", "default": 1}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 20}},
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "category", "in": "query", "schema": {"type": "string", "enum": ["botox", "filler", "biostimulator", "equipment", "consumable"]}},
+          {"name": "brand", "in": "query", "schema": {"type": "string"}},
+          {"name": "is_active", "in": "query", "schema": {"type": "boolean"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de produtos estéticos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "products": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/AestheticProduct"}
+                    },
+                    "pagination": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Aesthetic Products"],
+        "summary": "Criar produto estético",
+        "description": "Adiciona um novo produto ao catálogo",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "brand", "category"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "brand": {"type": "string"},
+                  "category": {"type": "string", "enum": ["botox", "filler", "biostimulator", "equipment", "consumable"]},
+                  "subcategory": {"type": "string"},
+                  "concentration": {"type": "string"},
+                  "volume_ml": {"type": "number"},
+                  "units_per_package": {"type": "integer"},
+                  "anvisa_registry": {"type": "string"},
+                  "manufacturer": {"type": "string"},
+                  "active_principle": {"type": "string"},
+                  "storage_temp_min": {"type": "number"},
+                  "storage_temp_max": {"type": "number"},
+                  "shelf_life_months": {"type": "integer"},
+                  "description": {"type": "string"},
+                  "usage_instructions": {"type": "string"},
+                  "contraindications": {"type": "string"},
+                  "image_url": {"type": "string"},
+                  "barcode": {"type": "string"},
+                  "is_controlled": {"type": "boolean"},
+                  "requires_prescription": {"type": "boolean"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Produto criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "product": {"$ref": "#/components/schemas/AestheticProduct"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/dashboard/{clinic_id}": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Dashboard de estoque",
+        "description": "Retorna dados do dashboard de estoque da clínica",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "clinic_id", "in": "path", "required": true, "schema": {"type": "integer"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do dashboard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statistics": {"type": "object"},
+                    "stock_by_category": {"type": "array"},
+                    "recent_movements": {"type": "array"},
+                    "critical_alerts": {"type": "array"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/batches/{clinic_id}": {
+      "get": {
+        "tags": ["Inventory"],
+        "summary": "Listar lotes de produtos",
+        "description": "Lista todos os lotes de produtos da clínica",
+        "security": [{"bearerAuth": []}],
+        "parameters": [
+          {"name": "clinic_id", "in": "path", "required": true, "schema": {"type": "integer"}},
+          {"name": "page", "in": "query", "schema": {"type": "integer", "default": 1}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 20}},
+          {"name": "search", "in": "query", "schema": {"type": "string"}},
+          {"name": "category", "in": "query", "schema": {"type": "string"}},
+          {"name": "status", "in": "query", "schema": {"type": "string"}},
+          {"name": "expiring", "in": "query", "schema": {"type": "string", "enum": ["soon"]}}
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de lotes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "batches": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/ProductBatch"}
+                    },
+                    "pagination": {"type": "object"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/batches": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Criar lote de produto",
+        "description": "Adiciona um novo lote de produto ao estoque",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["clinic_id", "product_id", "batch_number", "expiry_date", "initial_stock"],
+                "properties": {
+                  "clinic_id": {"type": "integer"},
+                  "product_id": {"type": "integer"},
+                  "batch_number": {"type": "string"},
+                  "manufacturing_date": {"type": "string", "format": "date"},
+                  "expiry_date": {"type": "string", "format": "date"},
+                  "supplier": {"type": "string"},
+                  "supplier_invoice": {"type": "string"},
+                  "purchase_price": {"type": "number"},
+                  "initial_stock": {"type": "integer"},
+                  "min_stock_alert": {"type": "integer"},
+                  "storage_location": {"type": "string"},
+                  "notes": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Lote criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "batch": {"$ref": "#/components/schemas/ProductBatch"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/movements": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Registrar movimentação de estoque",
+        "description": "Registra uma movimentação de entrada, saída ou ajuste de estoque",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["clinic_id", "batch_id", "movement_type", "quantity"],
+                "properties": {
+                  "clinic_id": {"type": "integer"},
+                  "batch_id": {"type": "integer"},
+                  "movement_type": {"type": "string", "enum": ["inbound", "outbound", "adjustment", "transfer", "return"]},
+                  "quantity": {"type": "integer"},
+                  "unit_cost": {"type": "number"},
+                  "reason": {"type": "string"},
+                  "reference_document": {"type": "string"},
+                  "procedure_id": {"type": "integer"},
+                  "notes": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Movimentação registrada com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "movement": {"$ref": "#/components/schemas/InventoryMovement"},
+                    "new_stock": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inventory/temperature-logs": {
+      "post": {
+        "tags": ["Inventory"],
+        "summary": "Registrar log de temperatura",
+        "description": "Registra um log de temperatura de equipamento",
+        "security": [{"bearerAuth": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["clinic_id", "equipment_id", "temperature"],
+                "properties": {
+                  "clinic_id": {"type": "integer"},
+                  "equipment_id": {"type": "string"},
+                  "equipment_name": {"type": "string"},
+                  "temperature": {"type": "number"},
+                  "humidity": {"type": "number"},
+                  "recorded_at": {"type": "string", "format": "date-time"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Log de temperatura registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {"type": "string"},
+                    "log": {"type": "object"},
+                    "alert_created": {"type": "boolean"}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ]
+}

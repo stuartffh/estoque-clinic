@@ -1,0 +1,349 @@
+<div class="inventory-dashboard">
+  <!-- Header Toolbar -->
+  <p-toolbar class="dashboard-toolbar">
+    <div class="p-toolbar-group-left">
+      <h1 class="dashboard-title">
+        <i class="pi pi-chart-line"></i>
+        Dashboard de Estoque
+      </h1>
+    </div>
+    
+    <div class="p-toolbar-group-right">
+      <button 
+        pButton 
+        type="button" 
+        [icon]="autoRefresh ? 'pi pi-pause' : 'pi pi-play'"
+        [label]="autoRefresh ? 'Pausar' : 'Iniciar'"
+        class="p-button-outlined refresh-btn"
+        (click)="toggleAutoRefresh()"
+        pTooltip="Auto-atualização a cada 30s">
+      </button>
+      
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-refresh" 
+        label="Atualizar"
+        class="p-button-outlined"
+        (click)="refreshData()">
+      </button>
+      
+      <p-menu #quickMenu [model]="quickActions" [popup]="true"></p-menu>
+      <button 
+        pButton 
+        type="button" 
+        icon="pi pi-plus" 
+        label="Ações"
+        class="p-button-primary"
+        (click)="quickMenu.toggle($event)">
+      </button>
+    </div>
+  </p-toolbar>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando dados do estoque...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading && dashboardData" class="dashboard-content">
+    
+    <!-- Key Metrics Cards -->
+    <div class="metrics-grid">
+      <p-card class="metric-card total-batches">
+        <div class="metric-content">
+          <div class="metric-icon">
+            <i class="pi pi-box"></i>
+          </div>
+          <div class="metric-info">
+            <h3>{{ dashboardData.statistics.total_batches }}</h3>
+            <p>Total de Lotes</p>
+            <small>{{ dashboardData.statistics.active_batches }} ativos</small>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card class="metric-card total-units">
+        <div class="metric-content">
+          <div class="metric-icon">
+            <i class="pi pi-database"></i>
+          </div>
+          <div class="metric-info">
+            <h3>{{ dashboardData.statistics.total_units | number }}</h3>
+            <p>Unidades em Estoque</p>
+            <small>{{ dashboardData.statistics.distinct_products }} produtos diferentes</small>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card class="metric-card expiring-soon">
+        <div class="metric-content">
+          <div class="metric-icon warning">
+            <i class="pi pi-exclamation-triangle"></i>
+          </div>
+          <div class="metric-info">
+            <h3>{{ dashboardData.statistics.expiring_soon }}</h3>
+            <p>Próximos ao Vencimento</p>
+            <small>Vencimento em 30 dias</small>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card class="metric-card low-stock">
+        <div class="metric-content">
+          <div class="metric-icon danger">
+            <i class="pi pi-exclamation-circle"></i>
+          </div>
+          <div class="metric-info">
+            <h3>{{ dashboardData.statistics.low_stock }}</h3>
+            <p>Estoque Baixo</p>
+            <small>Abaixo do limite mínimo</small>
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Stock Health Indicator -->
+    <p-card header="Saúde do Estoque" class="health-card">
+      <div class="health-indicator">
+        <div class="health-circle">
+          <div class="health-progress" [style.--progress]="calculateStockHealth().percentage + '%'" 
+               [style.--color]="calculateStockHealth().color">
+            <span class="health-percentage">{{ calculateStockHealth().percentage | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+        <div class="health-info">
+          <h3 [style.color]="calculateStockHealth().color">{{ calculateStockHealth().status }}</h3>
+          <p>Status geral do estoque baseado em vencimentos e níveis mínimos</p>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Charts and Tables Row -->
+    <div class="charts-tables-row">
+      
+      <!-- Stock by Category Chart -->
+      <p-card header="Estoque por Categoria" class="chart-card">
+        <p-chart 
+          type="doughnut" 
+          [data]="categoryChartData" 
+          [options]="categoryChartOptions"
+          [height]="300">
+        </p-chart>
+      </p-card>
+
+      <!-- Stock Categories Detail -->
+      <p-card header="Detalhes por Categoria" class="categories-card">
+        <div class="categories-list">
+          <div 
+            *ngFor="let category of dashboardData.stock_by_category" 
+            class="category-item"
+            [style.border-left-color]="getStockStatusColor(category)">
+            
+            <div class="category-header">
+              <i [class]="getCategoryIcon(category.category)"></i>
+              <h4>{{ getCategoryLabel(category.category) }}</h4>
+            </div>
+            
+            <div class="category-stats">
+              <div class="stat-item">
+                <span class="stat-value">{{ category.total_units }}</span>
+                <span class="stat-label">Unidades</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value">{{ category.batches_count }}</span>
+                <span class="stat-label">Lotes</span>
+              </div>
+              <div class="stat-item warning" *ngIf="category.expiring_soon > 0">
+                <span class="stat-value">{{ category.expiring_soon }}</span>
+                <span class="stat-label">Vencendo</span>
+              </div>
+            </div>
+            
+            <div class="category-progress">
+              <p-progressBar 
+                [value]="getExpiryStatus(category.expiring_soon, category.batches_count).percentage"
+                [severity]="getExpiryStatus(category.expiring_soon, category.batches_count).severity">
+              </p-progressBar>
+            </div>
+          </div>
+        </div>
+        
+        <div class="categories-actions">
+          <button 
+            pButton 
+            type="button" 
+            label="Ver Todos os Produtos" 
+            icon="pi pi-list"
+            class="p-button-outlined"
+            (click)="viewProducts()">
+          </button>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Recent Activities and Alerts Row -->
+    <div class="activities-alerts-row">
+      
+      <!-- Recent Movements -->
+      <p-card header="Movimentações Recentes" class="movements-card">
+        <p-timeline 
+          [value]="dashboardData.recent_movements" 
+          layout="vertical"
+          align="left">
+          
+          <ng-template pTemplate="marker" let-movement>
+            <div 
+              class="movement-marker"
+              [class]="getMovementTypeSeverity(movement.movement_type)">
+              <i [class]="getMovementTypeIcon(movement.movement_type)"></i>
+            </div>
+          </ng-template>
+          
+          <ng-template pTemplate="content" let-movement>
+            <div class="movement-content">
+              <div class="movement-header">
+                <h5>{{ movement.product_name }}</h5>
+                <p-tag 
+                  [value]="getMovementTypeLabel(movement.movement_type)"
+                  [severity]="getMovementTypeSeverity(movement.movement_type)">
+                </p-tag>
+              </div>
+              
+              <div class="movement-details">
+                <p>
+                  <strong>{{ movement.brand }}</strong> - Lote: {{ movement.batch_number }}
+                </p>
+                <p>
+                  Quantidade: 
+                  <span [class]="'quantity-' + movement.movement_type">
+                    {{ formatQuantity(movement.quantity, movement.movement_type) }}
+                  </span>
+                </p>
+                <small>
+                  Por: {{ movement.moved_by_name }} em {{ formatDate(movement.created_at) }}
+                </small>
+              </div>
+            </div>
+          </ng-template>
+        </p-timeline>
+        
+        <div class="movements-footer" *ngIf="dashboardData.recent_movements.length > 0">
+          <button 
+            pButton 
+            type="button" 
+            label="Ver Todas as Movimentações" 
+            icon="pi pi-history"
+            class="p-button-text"
+            (click)="viewMovements()">
+          </button>
+        </div>
+        
+        <div *ngIf="dashboardData.recent_movements.length === 0" class="empty-state">
+          <i class="pi pi-info-circle"></i>
+          <p>Nenhuma movimentação recente</p>
+        </div>
+      </p-card>
+
+      <!-- Critical Alerts -->
+      <p-card class="alerts-card">
+        <ng-template pTemplate="header">
+          <div class="alerts-header">
+            <span>Alertas Críticos</span>
+            <p-badge 
+              [value]="dashboardData.critical_alerts.length" 
+              severity="danger"
+              *ngIf="dashboardData.critical_alerts.length > 0">
+            </p-badge>
+          </div>
+        </ng-template>
+        
+        <div class="alerts-list">
+          <div 
+            *ngFor="let alert of dashboardData.critical_alerts" 
+            class="alert-item"
+            [class]="'alert-' + alert.severity">
+            
+            <div class="alert-icon">
+              <i class="pi pi-exclamation-triangle"></i>
+            </div>
+            
+            <div class="alert-content">
+              <h5>{{ alert.title }}</h5>
+              <p>{{ alert.message }}</p>
+              <small>{{ formatDate(alert.created_at) }}</small>
+            </div>
+            
+            <div class="alert-actions">
+              <p-tag 
+                [value]="alert.severity.toUpperCase()"
+                [severity]="getAlertSeverity(alert.severity)">
+              </p-tag>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alerts-footer">
+          <button 
+            pButton 
+            type="button" 
+            label="Ver Todos os Alertas" 
+            icon="pi pi-bell"
+            class="p-button-text"
+            (click)="viewAlerts()">
+          </button>
+        </div>
+        
+        <div *ngIf="dashboardData.critical_alerts.length === 0" class="empty-state">
+          <i class="pi pi-check-circle"></i>
+          <p>Nenhum alerta crítico no momento</p>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Quick Actions Panel -->
+    <p-panel header="Ações Rápidas" [toggleable]="true" class="quick-actions-panel">
+      <div class="quick-actions-grid">
+        <button 
+          pButton 
+          type="button" 
+          label="Ver Lotes" 
+          icon="pi pi-list"
+          class="p-button-outlined action-btn"
+          (click)="viewBatches()">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Entrada de Estoque" 
+          icon="pi pi-plus-circle"
+          class="p-button-success action-btn"
+          (click)="navigateTo('/inventory/entry')">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Saída de Estoque" 
+          icon="pi pi-minus-circle"
+          class="p-button-danger action-btn"
+          (click)="navigateTo('/inventory/exit')">
+        </button>
+        
+        <button 
+          pButton 
+          type="button" 
+          label="Relatórios" 
+          icon="pi pi-chart-bar"
+          class="p-button-info action-btn"
+          (click)="navigateTo('/inventory/reports')">
+        </button>
+      </div>
+    </p-panel>
+  </div>
+
+  <!-- Toast Messages -->
+  <p-toast></p-toast>
+</div>
