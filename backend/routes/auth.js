@@ -10,6 +10,9 @@ const { getDatabase } = require('../config/database');
 const { generateToken, authenticateToken, verifyToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
 const { ApiError } = require('../middleware/errorHandler');
 const { requireApiKey } = require('../middleware/apiKeyAuth');
+const { validate, authSchemas } = require('../middleware/validation');
+const { logger, logAuth } = require('../utils/logger');
+const { auditLogin, auditLogout, auditPasswordChange } = require('../middleware/audit');
 
 const router = express.Router();
 
@@ -17,14 +20,9 @@ const router = express.Router();
  * POST /auth/login
  * Autenticar usuário e retornar token JWT
  */
-router.post('/login', async (req, res, next) => {
+router.post('/login', validate(authSchemas.login), async (req, res, next) => {
   try {
     const { username, password } = req.body;
-
-    // Validar dados de entrada
-    if (!username || !password) {
-      return next(new ApiError(400, 'Username e password são obrigatórios', 'MISSING_CREDENTIALS'));
-    }
 
     // Buscar usuário no banco de dados
     const db = getDatabase();

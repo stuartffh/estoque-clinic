@@ -356,13 +356,28 @@ END;
 $$ language 'plpgsql';
 
 -- Apply trigger to tables with updated_at column
+DROP TRIGGER IF EXISTS update_clinic_groups_updated_at ON clinic_groups;
 CREATE TRIGGER update_clinic_groups_updated_at BEFORE UPDATE ON clinic_groups FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_clinics_updated_at ON clinics;
 CREATE TRIGGER update_clinics_updated_at BEFORE UPDATE ON clinics FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_users_updated_at ON users;
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_aesthetic_products_updated_at ON aesthetic_products;
 CREATE TRIGGER update_aesthetic_products_updated_at BEFORE UPDATE ON aesthetic_products FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_product_batches_updated_at ON product_batches;
 CREATE TRIGGER update_product_batches_updated_at BEFORE UPDATE ON product_batches FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_professionals_updated_at ON professionals;
 CREATE TRIGGER update_professionals_updated_at BEFORE UPDATE ON professionals FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_patients_updated_at ON patients;
 CREATE TRIGGER update_patients_updated_at BEFORE UPDATE ON patients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_procedures_updated_at ON procedures;
 CREATE TRIGGER update_procedures_updated_at BEFORE UPDATE ON procedures FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- =====================================
