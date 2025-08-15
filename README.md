@@ -1,466 +1,406 @@
-# EstoqueClinic - Sistema de Gestão de Estoque para Clínicas Estéticas
+# 🏥 EstoqueClinic
 
-Sistema completo de gestão de inventário especializado para clínicas estéticas, com foco em produtos como Botox, preenchedores e bioestimuladores. Oferece multi-tenancy, controle de temperatura, rastreamento de lotes e gestão completa de procedimentos estéticos.
+<div align="center">
+  <img src="https://img.shields.io/badge/Angular-20.1.0-red?style=for-the-badge&logo=angular" />
+  <img src="https://img.shields.io/badge/Node.js-18+-green?style=for-the-badge&logo=node.js" />
+  <img src="https://img.shields.io/badge/PostgreSQL-13+-blue?style=for-the-badge&logo=postgresql" />
+  <img src="https://img.shields.io/badge/TypeScript-5.8+-blue?style=for-the-badge&logo=typescript" />
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+</div>
 
-## 🚀 Tecnologias Utilizadas
+<p align="center">
+  <strong>Sistema completo de gestão de inventário para clínicas estéticas</strong><br>
+  Controle total de produtos, movimentações, alertas e relatórios com arquitetura multi-tenant
+</p>
 
-### Backend
-- **Node.js** - Runtime JavaScript
-- **Express.js** - Framework web para API REST
-- **PostgreSQL** - Banco de dados relacional
-- **JWT (jsonwebtoken)** - Autenticação e autorização
-- **bcryptjs** - Hash de senhas seguro
-- **Swagger** - Documentação da API
-- **CORS** - Cross-Origin Resource Sharing
-- **Helmet** - Segurança HTTP headers
-- **Rate Limiting** - Proteção contra ataques DDoS
+---
 
-### Frontend
-- **Angular** - Framework frontend moderno
-- **PrimeNG** - Componentes UI profissionais
-- **Tailwind CSS** - Framework CSS utilitário
+## 📋 Índice
+
+- [🎯 Sobre o Projeto](#-sobre-o-projeto)
+- [✨ Funcionalidades](#-funcionalidades)
+- [🛠️ Tecnologias](#️-tecnologias)
+- [🚀 Quick Start](#-quick-start)
+- [📦 Instalação](#-instalação)
+- [⚙️ Configuração](#️-configuração)
+- [🏗️ Arquitetura](#️-arquitetura)
+- [📖 API Documentation](#-api-documentation)
+- [🤝 Contribuindo](#-contribuindo)
+- [📄 Licença](#-licença)
+
+---
+
+## 🎯 Sobre o Projeto
+
+**EstoqueClinic** é uma solução moderna e completa para gestão de inventário de clínicas estéticas, desenvolvida com foco em **performance**, **segurança** e **escalabilidade**.
+
+### 🎨 Por que EstoqueClinic?
+
+- **🏥 Multi-Tenancy:** Gerencie múltiplas clínicas em uma única plataforma
+- **💉 Especializado:** Foco específico em produtos estéticos (Botox, preenchedores, etc.)
+- **📊 Analytics Avançado:** Dashboard com KPIs e relatórios detalhados
+- **⚡ Performance:** Interface moderna e responsiva
+- **🔒 Seguro:** Autenticação JWT e controle de acesso granular
+- **📱 Responsivo:** Funciona perfeitamente em desktop, tablet e mobile
+
+### 🎯 Casos de Uso
+
+- Controle de estoque de produtos estéticos
+- Rastreamento de movimentações (entradas/saídas)
+- Gestão de profissionais e usuários
+- Alertas de estoque baixo e vencimento
+- Relatórios gerenciais por período
+- Dashboard executivo com KPIs
+
+---
+
+## ✨ Funcionalidades
+
+### 📊 **Dashboard Executivo**
+- KPIs em tempo real (produtos, estoque baixo, clínicas ativas)
+- Gráficos de movimentação e distribuição por categoria
+- Notificações e atividades recentes
+- Performance do sistema
+
+### 📦 **Gestão de Produtos**
+- Catálogo completo de produtos estéticos
+- Controle de estoque atual, mínimo e máximo
+- Categorização por tipo (toxinas, preenchedores, peelings)
+- Rastreamento de lotes e datas de vencimento
+
+### 🔄 **Movimentações**
+- Registro de entradas e saídas
+- Histórico completo por produto
+- Associação com profissionais responsáveis
+- Relatórios de consumo por período
+
+### ⚠️ **Sistema de Alertas**
+- Alertas de estoque baixo automáticos
+- Notificações de produtos próximos ao vencimento
+- Dashboard de alertas com priorização
+- Integração com sistema de notificações
+
+### 👥 **Gestão de Profissionais**
+- Cadastro de médicos, enfermeiras e esteticistas
+- Controle de status (ativo, inativo, férias)
+- Associação com clínicas específicas
+- Histórico de atividades por profissional
+
+### 🏥 **Multi-Clínicas**
+- Gestão centralizada de múltiplas clínicas
+- Estatísticas individuais por unidade
+- Controle de acesso por clínica
+- Relatórios consolidados
+
+### 📈 **Relatórios Avançados**
+- Relatórios de estoque por categoria
+- Análise de movimentações por período
+- Relatórios financeiros de custos
+- Análise de giro de estoque
+- Exportação em PDF e Excel
+
+---
+
+## 🛠️ Tecnologias
+
+### **Frontend**
+- **Angular 20** - Framework moderno e robusto
+- **PrimeNG 17** - Componentes UI profissionais
+- **TailwindCSS** - Styling utilitário e responsivo
+- **TypeScript 5.8** - Tipagem estática e produtividade
+- **Chart.js** - Gráficos interativos
 - **RxJS** - Programação reativa
-- **TypeScript** - Linguagem tipada
-- **Chart.js** - Gráficos e dashboards
-- **PrimeIcons** - Ícones vetoriais
 
-## 📁 Estrutura do Projeto
+### **Backend**
+- **Node.js 18+** - Runtime JavaScript performático
+- **Express.js** - Framework web minimalista
+- **PostgreSQL** - Banco de dados relacional robusto
+- **JWT** - Autenticação stateless
+- **bcryptjs** - Hash de senhas seguro
+- **Helmet** - Middlewares de segurança
 
-```
-estoque-clinic-sistema/
-├── backend/                      # API REST Node.js
-│   ├── config/                  # Configurações do banco
-│   ├── middleware/              # Middlewares (auth, error handling)
-│   ├── routes/                  # Rotas da API
-│   │   ├── clinic-groups.js     # Gestão de grupos de clínicas
-│   │   ├── clinics.js          # Gestão de clínicas
-│   │   ├── aesthetic-products.js # Catálogo de produtos estéticos
-│   │   ├── inventory.js        # Gestão de estoque
-│   │   └── ...
-│   ├── database/               # Scripts SQL
-│   │   ├── schema.sql          # Estrutura completa do banco
-│   │   └── seed.sql           # Dados iniciais
-│   ├── models/                # Models de dados
-│   ├── uploads/               # Imagens de produtos
-│   ├── .env                   # Variáveis de ambiente
-│   ├── .env.example          # Template de configuração
-│   ├── server.js             # Servidor principal
-│   ├── swagger.json          # Documentação da API
-│   └── package.json          # Dependências do backend
-├── frontend/                 # Aplicação Angular
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── components/        # Componentes da aplicação
-│   │   │   │   ├── clinics/       # Gestão de clínicas
-│   │   │   │   ├── inventory/     # Dashboard de estoque
-│   │   │   │   ├── aesthetic-products/ # Catálogo de produtos
-│   │   │   │   └── ...
-│   │   │   ├── services/          # Serviços Angular
-│   │   │   ├── guards/           # Guards de autenticação
-│   │   │   ├── interceptors/     # Interceptors HTTP
-│   │   │   └── models/           # Interfaces TypeScript
-│   │   ├── assets/              # Assets estáticos
-│   │   └── environments/        # Configurações de ambiente
-│   └── package.json            # Dependências do frontend
-├── package.json               # Scripts do projeto raiz
-└── README.md                 # Documentação
-```
+### **DevOps & Tools**
+- **Docker** - Containerização
+- **ESLint** - Linting de código
+- **Prettier** - Formatação automática
+- **Swagger** - Documentação da API
+- **GitHub Actions** - CI/CD pipeline
 
-## 🛠️ Instalação e Configuração
+---
+
+## 🚀 Quick Start
 
 ### Pré-requisitos
-- **Node.js** (versão 18 ou superior)
-- **PostgreSQL** (versão 12 ou superior)
-- **npm** ou yarn
-- **Git** para controle de versão
-
-### 1. Clonar o repositório
 ```bash
-git clone <url-do-repositorio>
-cd estoque-clinic-sistema
+node >= 18.0.0
+npm >= 8.0.0
+postgresql >= 13.0
+git
 ```
 
-### 2. Instalar dependências
+### Instalação Rápida
 ```bash
-# Instalar dependências do projeto raiz
+# Clone o repositório
+git clone https://github.com/stuartffh/estoque-clinic.git
+cd estoque-clinic
+
+# Backend Setup
+cd backend
+npm install
+cp .env.example .env
+# Configure suas variáveis de ambiente no .env
+npm run init-db
+npm run dev
+
+# Em outro terminal - Frontend Setup
+cd ../frontend
+npm install
+npm start
+```
+
+🎉 **Pronto!** Acesse http://localhost:4200
+
+**Credenciais padrão:**
+- Email: `admin@estoqueclinic.com`
+- Senha: `123456`
+
+---
+
+## 📦 Instalação
+
+### 1. **Clone o Repositório**
+```bash
+git clone https://github.com/stuartffh/estoque-clinic.git
+cd estoque-clinic
+```
+
+### 2. **Backend Setup**
+```bash
+cd backend
+
+# Instalar dependências
 npm install
 
-# Instalar dependências do backend
-npm run install:backend
+# Configurar variáveis de ambiente
+cp .env.example .env
 
-# Instalar dependências do frontend
-npm run install:frontend
+# Configurar banco de dados PostgreSQL
+# Editar .env com suas credenciais
 
-# Ou instalar todas de uma vez
-npm run install:all
+# Executar migrações
+npm run init-db
+
+# Iniciar servidor de desenvolvimento
+npm run dev
 ```
 
-### 3. Configurar PostgreSQL
+### 3. **Frontend Setup**
 ```bash
-# Criar banco de dados para EstoqueClinic
-createdb estoque_clinic
+cd frontend
 
-# Executar scripts de criação das tabelas
-psql -d estoque_clinic -f backend/database/schema.sql
-psql -d estoque_clinic -f backend/database/seed.sql
+# Instalar dependências
+npm install
+
+# Iniciar servidor de desenvolvimento
+npm start
 ```
 
-### 4. Configurar variáveis de ambiente
-Copie o arquivo de exemplo e configure suas variáveis:
+### 4. **Acesso**
+- **Frontend:** http://localhost:4200
+- **Backend API:** http://localhost:3001
 
-```bash
-cp backend/.env.example backend/.env
-```
+---
 
-Configure o arquivo `.env` com seus dados:
+## ⚙️ Configuração
 
+### **Variáveis de Ambiente**
+
+Crie o arquivo `.env` no backend:
 ```env
-# Configurações do servidor
-PORT=3000
+# Servidor
+PORT=3001
 NODE_ENV=development
 
-# JWT Secret (ALTERE para uma chave segura em produção)
-JWT_SECRET=estoque_clinic_jwt_secret_key_2024
-
-# Configurações do banco de dados EstoqueClinic
+# Banco de Dados
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=estoque_clinic
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=sua_senha
 
-# CORS - Frontend Angular
+# JWT
+JWT_SECRET=seu_jwt_secret_super_seguro
+JWT_EXPIRES_IN=7d
+
+# CORS
 CORS_ORIGIN=http://localhost:4200
-
-# Upload de imagens
-UPLOAD_MAX_SIZE=5242880
-UPLOAD_ALLOWED_TYPES=image/jpeg,image/png,image/webp
-
-# Configurações de e-mail (para alertas)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-
-# Configurações de temperatura (limites para alertas)
-TEMP_MIN_THRESHOLD=2
-TEMP_MAX_THRESHOLD=8
 ```
 
-Para o frontend em produção, defina a variável de ambiente `NG_APP_API_URL` com a URL da API antes de executar o build.
-Em desenvolvimento, o arquivo `src/environments/environment.ts` já utiliza `http://localhost:3000` por padrão.
+### **Banco de Dados PostgreSQL**
 
-## 🚀 Executando o Projeto
-
-### Opção 1: Executar frontend e backend juntos (Recomendado)
-```bash
-npm start
-# ou
-npm run dev
+```sql
+-- Criar banco e usuário
+CREATE DATABASE estoque_clinic;
+CREATE USER estoque_user WITH ENCRYPTED PASSWORD 'sua_senha';
+GRANT ALL PRIVILEGES ON DATABASE estoque_clinic TO estoque_user;
 ```
-
-### Opção 2: Executar separadamente
-
-#### Backend (porta 3000)
-```bash
-npm run start:backend
-```
-
-#### Frontend (porta 4200)
-```bash
-npm run start:frontend
-```
-
-## 🔐 Credenciais de Teste
-
-O sistema cria automaticamente contas para demonstração:
-
-### Super Administrador (Multi-tenancy)
-- **Email:** `superadmin@estoqueclinic.com`
-- **Senha:** `SuperAdmin123!`
-- **Acesso:** Todos os grupos de clínicas
-
-### Administrador de Clínica
-- **Email:** `admin@clinicaestetica.com`
-- **Senha:** `Admin123!`
-- **Acesso:** Clínica específica
-
-### Profissional da Clínica
-- **Email:** `medico@clinicaestetica.com`
-- **Senha:** `Medico123!`
-- **Acesso:** Visualização e procedimentos
-
-## 📱 Funcionalidades EstoqueClinic
-
-### 🏥 Multi-Tenancy (Grupos de Clínicas)
-- Gestão de múltiplos grupos de clínicas
-- Isolamento total de dados por grupo
-- Administração hierárquica de usuários
-- Configurações personalizadas por grupo
-
-### 🏢 Gestão de Clínicas
-- Cadastro completo de clínicas
-- Configuração de endereços e contatos
-- Gestão de profissionais por clínica
-- Upload de logos e imagens
-
-### 💉 Catálogo de Produtos Estéticos
-- **Botox** - Toxina botulínica tipo A
-- **Preenchedores** - Ácido hialurônico, hidroxiapatita
-- **Bioestimuladores** - PLLA, PCL, estimuladores de colágeno
-- Controle de lotes e validade
-- Rastreabilidade completa
-
-### 📦 Gestão de Estoque
-- Entrada e saída de produtos
-- Controle de temperatura (2-8°C)
-- Alertas automáticos de vencimento
-- Relatórios de movimentação
-- Dashboard com métricas em tempo real
-
-### 👨‍⚕️ Gestão de Procedimentos
-- Registro de procedimentos estéticos
-- Vinculação de produtos utilizados
-- Histórico por paciente
-- Controle de profissionais responsáveis
-
-### 🌡️ Monitoramento de Temperatura
-- Logs automáticos de temperatura
-- Alertas em tempo real
-- Histórico de variações
-- Integração com sensores IoT
-
-### Backend (API REST)
-
-#### Autenticação Multi-Tenant
-- `POST /auth/login` - Login com seleção de clínica
-- `POST /auth/logout` - Logout seguro
-- `GET /auth/me` - Dados do usuário autenticado
-- `POST /auth/validate` - Validação de token JWT
-
-#### Grupos de Clínicas
-- `GET /clinic-groups` - Listar grupos (super admin)
-- `POST /clinic-groups` - Criar novo grupo
-- `PUT /clinic-groups/:id` - Atualizar grupo
-- `DELETE /clinic-groups/:id` - Remover grupo
-
-#### Clínicas
-- `GET /clinics` - Listar clínicas do grupo
-- `POST /clinics` - Cadastrar nova clínica
-- `PUT /clinics/:id` - Atualizar dados da clínica
-- `DELETE /clinics/:id` - Remover clínica
-
-#### Produtos Estéticos
-- `GET /aesthetic-products` - Catálogo de produtos
-- `POST /aesthetic-products` - Cadastrar produto
-- `PUT /aesthetic-products/:id` - Atualizar produto
-- `GET /aesthetic-products/categories` - Categorias
-
-#### Gestão de Estoque
-- `GET /inventory` - Dashboard de estoque
-- `POST /inventory/movements` - Registrar movimentação
-- `GET /inventory/alerts` - Alertas de vencimento
-- `GET /inventory/reports` - Relatórios
-- `POST /inventory/temperature-logs` - Log de temperatura
-
-### Frontend (Angular)
-
-#### Principais Telas
-- **Login Multi-Tenant** - Seleção de clínica e autenticação
-- **Dashboard de Estoque** - Métricas em tempo real:
-  - Produtos próximos ao vencimento
-  - Níveis de estoque por categoria
-  - Alertas de temperatura
-  - Movimentações recentes
-- **Gestão de Clínicas** - CRUD completo de clínicas
-- **Catálogo de Produtos** - Navegação por produtos estéticos:
-  - Filtros por categoria (Botox, Preenchedores, Bioestimuladores)
-  - Detalhes técnicos e armazenamento
-  - Upload de imagens
-- **Controle de Estoque** - Movimentações e relatórios:
-  - Entrada e saída de produtos
-  - Histórico de movimentações
-  - Relatórios personalizados
-
-#### Funcionalidades Angular
-- **Multi-Tenancy** - Isolamento de dados por clínica
-- **Autenticação JWT** - Login com seleção de contexto
-- **Guards Hierárquicos** - Controle de acesso por nível
-- **Interceptors** - Injeção automática de headers de tenant
-- **PrimeNG Components** - Interface profissional
-- **Responsive Design** - Otimizado para tablets (uso clínico)
-- **Real-time Updates** - WebSocket para alertas
-- **PWA Ready** - Funcionamento offline básico
-
-## 🔒 Segurança EstoqueClinic
-
-### Compliance e Regulamentações
-- **LGPD** - Proteção de dados de pacientes
-- **ANVISA** - Rastreabilidade de produtos controlados
-- **CFM** - Segurança de dados médicos
-- **ISO 27001** - Gestão de segurança da informação
-
-### Backend Security
-- **Multi-Tenant Security** - Isolamento total de dados por clínica
-- **JWT + Tenant Headers** - Autenticação com contexto
-- **Role-Based Access** - Controle granular de permissões
-- **Audit Trails** - Log de todas as operações críticas
-- **Encrypted Storage** - Dados sensíveis criptografados
-- **Rate Limiting** - Proteção contra ataques
-- **Input Sanitization** - Validação rigorosa de entradas
-- **SQL Injection Protection** - Queries parametrizadas
-
-### Frontend Security  
-- **Tenant Context Guards** - Validação de contexto
-- **XSS Protection** - Sanitização de conteúdo
-- **CSRF Tokens** - Proteção contra ataques cross-site
-- **Session Management** - Controle de sessões por clínica
-- **Secure Headers** - Headers de segurança HTTP
-
-## 🎨 Interface do Usuário
-
-### Design System
-- **Cores Primárias** - Azul (#2563eb)
-- **Tipografia** - Inter (Google Fonts)
-- **Componentes** - PrimeNG + CSS customizado
-- **Layout** - Flexbox e Grid CSS
-- **Responsividade** - Mobile-first approach
-
-### Componentes PrimeNG Utilizados
-- Button, Card, InputText, Password
-- Table, ProgressBar, Tag, Avatar
-- Toast, Message, Menu
-
-## 📊 Banco de Dados EstoqueClinic
-
-### Estrutura Multi-Tenant (PostgreSQL)
-
-O sistema utiliza uma arquitetura multi-tenant com as seguintes principais tabelas:
-
-#### Core Tables (Multi-tenancy)
-- **`clinic_groups`** - Grupos de clínicas (isolamento de dados)
-- **`clinics`** - Clínicas individuais dentro dos grupos
-- **`users`** - Usuários com contexto de clínica
-
-#### Produtos e Estoque
-- **`aesthetic_products`** - Catálogo de produtos estéticos
-- **`product_batches`** - Lotes com validade e controle
-- **`inventory_movements`** - Movimentações de entrada/saída
-- **`temperature_logs`** - Logs de monitoramento de temperatura
-
-#### Gestão Clínica
-- **`professionals`** - Médicos e profissionais da clínica
-- **`patients`** - Pacientes cadastrados
-- **`procedures`** - Procedimentos realizados
-- **`procedure_items`** - Produtos utilizados nos procedimentos
-
-#### Monitoramento e Alertas
-- **`system_alerts`** - Alertas de vencimento e temperatura
-- **`audit_logs`** - Log de auditoria para compliance
-
-### Principais Características
-- **Row Level Security (RLS)** - Isolamento automático por tenant
-- **Indexes Otimizados** - Performance para consultas complexas
-- **Triggers** - Atualizações automáticas e logs de auditoria
-- **Views Materializadas** - Dashboards e relatórios rápidos
-- **Constraints** - Integridade referencial rigorosa
-
-### Dados de Exemplo
-O sistema inclui dados de demonstração:
-- Produtos estéticos populares (Botox, Juvederm, Sculptra)
-- Lotes com diferentes status de validade
-- Movimentações de estoque realistas
-- Logs de temperatura simulados
-
-## 🔧 Scripts Disponíveis
-
-### Projeto Raiz
-- `npm start` - Iniciar frontend e backend juntos
-- `npm run dev` - Alias para start
-- `npm run install:all` - Instalar todas as dependências
-- `npm run install:backend` - Instalar dependências do backend
-- `npm run install:frontend` - Instalar dependências do frontend
-- `npm run start:backend` - Iniciar apenas o backend
-- `npm run start:frontend` - Iniciar apenas o frontend
-- `npm run build:frontend` - Build do frontend
-- `npm run build` - Build completo
-
-### Backend
-- `npm start` - Iniciar servidor
-- `npm run dev` - Iniciar com nodemon (desenvolvimento)
-- `npm run init-db` - Inicializar banco de dados
-
-### Frontend
-- `npm start` - Iniciar servidor de desenvolvimento
-- `npm run build` - Build para produção
-- `npm run serve` - Servir build de produção
-
-## 🌐 URLs de Acesso
-
-- **Frontend:** http://localhost:4200
-- **Backend API:** http://localhost:3000
-- **Health Check:** http://localhost:3000/health
-
-## 🐛 Troubleshooting
-
-### Problemas Comuns
-
-#### 1. Erro de CORS
-Verifique se a variável `CORS_ORIGIN` no `.env` está configurada corretamente.
-
-#### 2. Erro de conexão com banco
-Certifique-se de que o banco PostgreSQL esteja configurado e acessível; utilize os arquivos SQL em `backend/database` para criar as tabelas.
-
-#### 3. Token inválido
-Limpe o localStorage do navegador ou faça logout e login novamente.
-
-#### 4. Porta em uso
-Altere as portas nos arquivos de configuração se necessário:
-- Backend: `.env` (PORT=3000)
-- Frontend: `angular.json` (serve.options.port)
-
-### Logs
-- **Backend:** Console do terminal onde o servidor está rodando
-- **Frontend:** Console do navegador (F12)
-
-## 📈 Próximos Passos
-
-### Melhorias Sugeridas
-1. **Testes** - Implementar testes unitários e e2e
-2. **Docker** - Containerização da aplicação
-3. **CI/CD** - Pipeline de deploy automatizado
-4. **Monitoramento** - Logs estruturados e métricas
-5. **Cache** - Redis para sessões e cache
-6. **Upload de Arquivos** - Funcionalidade de upload
-7. **Notificações Push** - WebSockets ou Server-Sent Events
-8. **Internacionalização** - Suporte a múltiplos idiomas
-
-### Produção
-1. **Variáveis de Ambiente** - Configurar para produção
-2. **HTTPS** - Certificados SSL/TLS
-3. **Banco de Dados** - Implementar migrations e otimizações
-4. **Load Balancer** - Para alta disponibilidade
-5. **CDN** - Para assets estáticos
-
-## 👥 Contribuição
-
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
-
-## 📞 Suporte
-
-Para suporte e dúvidas:
-- Abra uma issue no GitHub
-- Entre em contato via email
 
 ---
 
-**Desenvolvido com ❤️ usando Angular + Node.js**
+## 🏗️ Arquitetura
 
+### **Visão Geral**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    EstoqueClinic System                     │
+├─────────────────────────────────────────────────────────────┤
+│  Frontend (Angular 20)                                     │
+│  ├── Dashboard         ├── Produtos       ├── Relatórios   │
+│  ├── Profissionais     ├── Movimentações  ├── Alertas      │
+│  ├── Clínicas          ├── Auth Guard     └── Services     │
+│  └── PrimeNG + TailwindCSS                                 │
+├─────────────────────────────────────────────────────────────┤
+│  Backend (Node.js + Express)                              │
+│  ├── Routes: /auth, /products, /movements, /reports       │
+│  ├── Middleware: Auth, CORS, Helmet, Rate Limit           │
+│  ├── Models: User, Product, Clinic, Movement              │
+│  └── Utils: JWT, Bcrypt, Validators                       │
+├─────────────────────────────────────────────────────────────┤
+│  Database (PostgreSQL)                                    │
+│  ├── Multi-tenant structure                               │
+│  ├── Indexed for performance                              │
+│  └── ACID compliance                                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### **Estrutura de Pastas**
+```
+estoque-clinic/
+├── backend/              # API Node.js
+│   ├── config/           # Configurações
+│   ├── middleware/       # Middlewares Express
+│   ├── models/           # Modelos de dados
+│   ├── routes/           # Rotas da API
+│   ├── utils/            # Utilitários
+│   └── server.js         # Entrada da aplicação
+├── frontend/             # App Angular
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/    # Componentes
+│   │   │   ├── services/      # Serviços
+│   │   │   ├── guards/        # Guards de rota
+│   │   │   └── interceptors/  # Interceptors HTTP
+│   │   ├── assets/            # Assets estáticos
+│   │   └── environments/      # Ambientes
+├── docs/                 # Documentação
+└── scripts/              # Scripts utilitários
+```
+
+---
+
+## 📖 API Documentation
+
+### **Endpoints Principais**
+
+#### Autenticação
+```http
+POST /api/auth/login      # Login do usuário
+POST /api/auth/register   # Registro de usuário
+POST /api/auth/refresh    # Refresh do token
+POST /api/auth/logout     # Logout
+```
+
+#### Produtos
+```http
+GET    /api/products           # Lista produtos
+POST   /api/products           # Cria produto
+GET    /api/products/:id       # Busca produto
+PUT    /api/products/:id       # Atualiza produto
+DELETE /api/products/:id       # Remove produto
+```
+
+#### Movimentações
+```http
+GET    /api/movements          # Lista movimentações
+POST   /api/movements          # Registra movimentação
+GET    /api/movements/:id      # Busca movimentação
+```
+
+#### Dashboard
+```http
+GET /api/dashboard/stats       # KPIs do dashboard
+GET /api/dashboard/charts      # Dados dos gráficos
+```
+
+### **Autenticação**
+Todas as rotas protegidas requerem Bearer Token:
+```http
+Authorization: Bearer <jwt_token>
+```
+
+---
+
+## 🤝 Contribuindo
+
+### **Como Contribuir**
+
+1. **Fork** o projeto
+2. Crie sua **feature branch** (`git checkout -b feature/AmazingFeature`)
+3. **Commit** suas mudanças (`git commit -m 'Add: amazing feature'`)
+4. **Push** para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um **Pull Request**
+
+### **Padrões de Código**
+
+#### Commits (Conventional Commits)
+```bash
+feat: adiciona autenticação por biometria
+fix: corrige cálculo de estoque
+docs: atualiza README com exemplos
+style: formata código com prettier
+refactor: refatora componente de dashboard
+test: adiciona testes unitários
+```
+
+### **Code Review**
+- Código deve passar em todos os linters
+- Documentação deve estar atualizada
+- Seguir padrões ESLint e Prettier
+- Manter consistência com o projeto
+
+---
+
+## 📞 Suporte
+
+### **Reportar Problemas**
+- 🐛 [Issues](https://github.com/stuartffh/estoque-clinic/issues)
+- 💬 [Discussions](https://github.com/stuartffh/estoque-clinic/discussions)
+
+### **Recursos Úteis**
+- 📚 [Documentação completa](./docs/)
+- 🔧 [Plano de produção](./PRODUCTION-PLAN.md)
+- 🚀 [Guia de deploy](./docs/deployment.md)
+
+---
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+---
+
+## 🙏 Agradecimentos
+
+- [Angular Team](https://angular.io) - Framework fantástico
+- [PrimeNG](https://primeng.org) - Componentes UI profissionais
+- [Node.js Community](https://nodejs.org) - Runtime poderoso
+- [PostgreSQL](https://postgresql.org) - Banco de dados robusto
+
+---
+
+<div align="center">
+  <p>Feito com ❤️ para clínicas estéticas</p>
+  <p><strong>EstoqueClinic</strong> - Gestão profissional de inventário</p>
+  
+  ⭐ **Dê uma estrela se este projeto foi útil!** ⭐
+</div>
