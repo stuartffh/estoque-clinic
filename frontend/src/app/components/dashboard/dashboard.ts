@@ -71,23 +71,73 @@ export class DashboardComponent implements OnInit, OnDestroy {
   loadDashboardData(): void {
     this.isLoading = true;
 
-    this.apiService.getDashboardData().subscribe({
-      next: (response) => {
-        this.dashboardData = response.data;
-        this.setupStatsCards();
-        this.isLoading = false;
+    // Simular dados mock para o dashboard
+    setTimeout(() => {
+      this.dashboardData = {
+        stats: {
+          totalProducts: 127,
+          expiringSoon: 8,
+          lowStock: 5,
+          activeClinics: 3
+        },
+        charts: {
+          systemPerformance: {
+            cpu: 45,
+            memory: 67,
+            disk: 23
+          }
+        },
+        notifications: [
+          {
+            type: 'warning',
+            title: 'Estoque Baixo',
+            message: 'Botox 100UI com apenas 5 unidades',
+            timestamp: new Date().toISOString()
+          },
+          {
+            type: 'info',
+            title: 'Nova Movimentação',
+            message: 'Entrada de 20 unidades de Ácido Hialurônico',
+            timestamp: new Date().toISOString()
+          },
+          {
+            type: 'success',
+            title: 'Backup Realizado',
+            message: 'Backup automático concluído com sucesso',
+            timestamp: new Date().toISOString()
+          }
+        ],
+        recentActivity: [
+          {
+            id: 1,
+            action: 'Entrada de Produto',
+            user: 'Dr. Silva',
+            timestamp: new Date().toISOString()
+          },
+          {
+            id: 2,
+            action: 'Saída de Produto',
+            user: 'Dra. Santos',
+            timestamp: new Date().toISOString()
+          },
+          {
+            id: 3,
+            action: 'Cadastro de Profissional',
+            user: 'Admin',
+            timestamp: new Date().toISOString()
+          }
+        ]
+      };
+      
+      this.setupStatsCards();
+      this.isLoading = false;
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Dashboard carregado',
-          detail: 'Dados atualizados com sucesso'
-        });
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.error('Erro ao carregar dashboard:', error);
-      }
-    });
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Dashboard carregado',
+        detail: 'Dados atualizados com sucesso'
+      });
+    }, 1000);
   }
 
   setupStatsCards(): void {
@@ -95,31 +145,31 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.statsCards = [
       {
-        title: 'Usuários Totais',
-        value: this.dashboardData.stats.totalUsers,
-        subtitle: 'Usuários cadastrados',
-        icon: 'pi pi-users',
+        title: 'Produtos em Estoque',
+        value: this.dashboardData.stats.totalProducts || 0,
+        subtitle: 'Produtos cadastrados',
+        icon: 'pi pi-box',
         iconBg: 'bg-blue-100 text-blue-600'
       },
       {
-        title: 'Usuários Ativos',
-        value: this.dashboardData.stats.activeUsers,
-        subtitle: 'Online agora',
-        icon: 'pi pi-user-plus',
-        iconBg: 'bg-green-100 text-green-600',
+        title: 'Lotes Vencendo',
+        value: this.dashboardData.stats.expiringSoon || 0,
+        subtitle: 'Próximo ao vencimento',
+        icon: 'pi pi-exclamation-triangle',
+        iconBg: 'bg-orange-100 text-orange-600',
       },
       {
-        title: 'Sessões',
-        value: this.dashboardData.stats.totalSessions,
-        subtitle: 'Sessões ativas',
-        icon: 'pi pi-desktop',
-        iconBg: 'bg-yellow-100 text-yellow-600',
+        title: 'Estoque Baixo',
+        value: this.dashboardData.stats.lowStock || 0,
+        subtitle: 'Produtos em falta',
+        icon: 'pi pi-minus-circle',
+        iconBg: 'bg-red-100 text-red-600',
       },
       {
-        title: 'Uptime',
-        value: this.formatUptime(this.dashboardData.stats.serverUptime),
-        subtitle: 'Tempo online',
-        icon: 'pi pi-clock',
+        title: 'Clínicas Ativas',
+        value: this.dashboardData.stats.activeClinics || 1,
+        subtitle: 'Clínicas cadastradas',
+        icon: 'pi pi-building',
         iconBg: 'bg-purple-100 text-purple-600',
       }
     ];

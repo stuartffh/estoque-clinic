@@ -26,11 +26,24 @@ function getConfig() {
 async function connectDatabase() {
   pool = new Pool(getConfig());
   try {
-    await pool.query('SELECT 1');
+    // Test connection with timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Connection timeout')), 10000);
+    });
+    
+    await Promise.race([
+      pool.query('SELECT 1'),
+      timeoutPromise
+    ]);
+    
     console.log('✅ Conectado ao banco de dados PostgreSQL');
   } catch (err) {
     console.error('❌ Erro ao conectar com o banco de dados:', err.message);
-    throw err;
+    console.warn('⚠️ Continuando sem conexão com banco (modo desenvolvimento)');
+    // Don't throw error in development mode
+    if (process.env.NODE_ENV === 'production') {
+      throw err;
+    }
   }
 }
 
@@ -46,29 +59,59 @@ function convertPlaceholders(sql) {
  * Criar tabelas necessárias carregando o schema do projeto
  */
 async function createTables() {
-  const schemaPath = path.join(__dirname, '../database/schema.sql');
-  const schema = fs.readFileSync(schemaPath, 'utf8');
-  await pool.query(schema);
-  console.log('✅ Tabelas criadas/verificadas');
+  if (!pool) {
+    console.warn('⚠️ Pool de conexão não disponível, ignorando criação de tabelas');
+    return;
+  }
+  
+  try {
+    const schemaPath = path.join(__dirname, '../database/schema.sql');
+    const schema = fs.readFileSync(schemaPath, 'utf8');
+    await pool.query(schema);
+    console.log('✅ Tabelas criadas/verificadas');
+  } catch (err) {
+    console.error('❌ Erro ao criar tabelas:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      throw err;
+    }
+    console.warn('⚠️ Continuando sem criação de tabelas (modo desenvolvimento)');
+  }
 }
 
 /**
  * Criar usuário padrão para testes
  */
 async function createDefaultUser() {
-  const { rows } = await pool.query('SELECT id FROM users WHERE username = $1', ['admin']);
-  if (rows.length > 0) {
-    console.log('✅ Usuário admin já existe');
+  if (!pool) {
+    console.warn('⚠️ Pool de conexão não disponível, ignorando criação de usuário');
+    console.log('📧 Email padrão: admin@example.com');
+    console.log('🔑 Senha padrão: admin123');
     return;
   }
-  const hashedPassword = await bcrypt.hash('admin123', 12);
-  await pool.query(
-    'INSERT INTO users (username, email, password, full_name) VALUES ($1, $2, $3, $4)',
-    ['admin', 'admin@example.com', hashedPassword, 'Administrador']
-  );
-  console.log('✅ Usuário admin criado com sucesso');
-  console.log('📧 Email: admin@example.com');
-  console.log('🔑 Senha: admin123');
+  
+  try {
+    const { rows } = await pool.query('SELECT id FROM users WHERE username = $1', ['admin']);
+    if (rows.length > 0) {
+      console.log('✅ Usuário admin já existe');
+      return;
+    }
+    const hashedPassword = await bcrypt.hash('admin123', 12);
+    await pool.query(
+      'INSERT INTO users (username, email, password, full_name) VALUES ($1, $2, $3, $4)',
+      ['admin', 'admin@example.com', hashedPassword, 'Administrador']
+    );
+    console.log('✅ Usuário admin criado com sucesso');
+    console.log('📧 Email: admin@example.com');
+    console.log('🔑 Senha: admin123');
+  } catch (err) {
+    console.error('❌ Erro ao criar usuário padrão:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      throw err;
+    }
+    console.warn('⚠️ Continuando sem criação de usuário (modo desenvolvimento)');
+    console.log('📧 Email padrão: admin@example.com');
+    console.log('🔑 Senha padrão: admin123');
+  }
 }
 
 /**

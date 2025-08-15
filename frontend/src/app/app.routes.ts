@@ -26,26 +26,25 @@ export const routes: Routes = [
     component: MasterLayoutComponent,
     canActivate: [authGuard],
     children: [
+      // Dashboard
       { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard').then(m => m.DashboardComponent) },
+      { path: 'inventory-dashboard', loadComponent: () => import('./components/inventory-dashboard/inventory-dashboard').then(m => m.InventoryDashboardComponent) },
+      
+      // Estoque
+      { path: 'produtos-esteticos', loadComponent: () => import('./components/produtos-esteticos/produto-list').then(m => m.ProdutoListComponent) },
+      { path: 'movimentacoes', loadComponent: () => import('./components/movimentacoes/movimentacao-list').then(m => m.MovimentacaoListComponent) },
+      { path: 'alertas', loadComponent: () => import('./components/alertas/alerta-list').then(m => m.AlertaListComponent) },
+      { path: 'relatorios', loadComponent: () => import('./components/relatorios/relatorio-list').then(m => m.RelatorioListComponent) },
+      
+      // Gestão
+      { path: 'clinicas', loadComponent: () => import('./components/clinicas/clinica-list').then(m => m.ClinicaListComponent) },
       { path: 'users', loadComponent: () => import('./components/users/user-list').then(m => m.UserListComponent) },
       { path: 'users/new', loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent) },
       { path: 'users/:id', loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent) },
+      { path: 'profissionais', loadComponent: () => import('./components/profissionais/profissional-list').then(m => m.ProfissionalListComponent) },
+      
+      // Configurações
       { path: 'change-password', loadComponent: () => import('./components/change-password/change-password').then(m => m.ChangePasswordComponent) },
-      { path: 'restaurantes', loadComponent: () => import('./components/restaurantes/restaurante-list').then(m => m.RestauranteListComponent) },
-      { path: 'restaurantes/novo', loadComponent: () => import('./components/restaurantes/restaurante-form').then(m => m.RestauranteFormComponent) },
-      { path: 'restaurantes/:id', loadComponent: () => import('./components/restaurantes/restaurante-form').then(m => m.RestauranteFormComponent) },
-      { path: 'diretrizes', loadComponent: () => import('./components/diretrizes/diretriz-list').then(m => m.DiretrizListComponent) },
-      { path: 'diretrizes/novo', loadComponent: () => import('./components/diretrizes/diretriz-form').then(m => m.DiretrizFormComponent) },
-      { path: 'diretrizes/:id', loadComponent: () => import('./components/diretrizes/diretriz-form').then(m => m.DiretrizFormComponent) },
-      { path: 'eventos', loadComponent: () => import('./components/eventos/evento-list').then(m => m.EventoListComponent) },
-      { path: 'eventos/novo', loadComponent: () => import('./components/eventos/evento-form').then(m => m.EventoFormComponent) },
-      { path: 'eventos/em-massa', loadComponent: () => import('./components/eventos/evento-bulk-form').then(m => m.EventoBulkFormComponent) },
-      { path: 'eventos/:id', loadComponent: () => import('./components/eventos/evento-form').then(m => m.EventoFormComponent) },
-      { path: 'reservas', loadComponent: () => import('./components/reservas/reserva-list').then(m => m.ReservaListComponent) },
-      { path: 'reservas/novo', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },
-      { path: 'reservas/:id', loadComponent: () => import('./components/reservas/reserva-form').then(m => m.ReservaFormComponent) },
-      { path: 'reserva-evento', loadComponent: () => import('./components/reserva-evento/reserva-evento').then(m => m.ReservaEventoComponent) },
-      { path: 'reserva-evento-list', loadComponent: () => import('./components/reserva-evento-list/reserva-evento-list').then(m => m.ReservaEventoListComponent) },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: '**', redirectTo: 'dashboard' }
     ]

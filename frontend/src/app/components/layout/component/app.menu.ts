@@ -21,25 +21,29 @@ export class AppMenu {
   ngOnInit() {
     this.model = [
       {
-        label: 'Home',
-        items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }]
-      },
-      {
-        label: 'Operacional',
+        label: 'Dashboard',
         items: [
-            { label: 'Reserva Evento', icon: 'pi pi-fw pi-calendar-clock', routerLink: ['/reserva-evento'] },
+          { label: 'Visão Geral', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
+          { label: 'Inventário', icon: 'pi pi-fw pi-chart-line', routerLink: ['/inventory-dashboard'] }
         ]
       },
       {
-        label: 'Cadastros',
+        label: 'Estoque',
         items: [
-            { label: 'Usuários', icon: 'pi pi-fw pi pi-user', routerLink: ['/users'] },
-            { label: 'Restaurantes', icon: 'pi pi-fw pi-briefcase', routerLink: ['/restaurantes'] },
-            { label: 'Diretrizes', icon: 'pi pi-fw pi-file', routerLink: ['/diretrizes'] },
-            { label: 'Eventos', icon: 'pi pi-fw pi-calendar-plus', routerLink: ['/eventos'] },
-            { label: 'Reservas CM', icon: 'pi pi-fw pi-address-book', routerLink: ['/reservas'] },
+          { label: 'Produtos Estéticos', icon: 'pi pi-fw pi-box', routerLink: ['/produtos-esteticos'] },
+          { label: 'Movimentações', icon: 'pi pi-fw pi-arrows-h', routerLink: ['/movimentacoes'] },
+          { label: 'Alertas', icon: 'pi pi-fw pi-exclamation-triangle', routerLink: ['/alertas'] },
+          { label: 'Relatórios', icon: 'pi pi-fw pi-file-pdf', routerLink: ['/relatorios'] }
         ]
       },
+      {
+        label: 'Gestão',
+        items: [
+          { label: 'Clínicas', icon: 'pi pi-fw pi-building', routerLink: ['/clinicas'] },
+          { label: 'Usuários', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
+          { label: 'Profissionais', icon: 'pi pi-fw pi-user-edit', routerLink: ['/profissionais'] }
+        ]
+      }
     ];
   }
 }

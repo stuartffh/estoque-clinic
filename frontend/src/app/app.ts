@@ -18,5 +18,5 @@ import { LoadingComponent } from './components/loading/loading';
   styles: []
 })
 export class AppComponent {
-  title = 'Sistema de Agendamento de Temáticos';
+  title = 'EstoqueClinic - Sistema de Gestão de Estoque para Clínicas Estéticas';
 }

@@ -135,17 +135,24 @@ app.use(errorHandler);
 // Inicializar banco de dados e servidor
 async function startServer() {
   try {
-    // Inicializar banco de dados
-    await initDatabase();
-    console.log('✅ Banco de dados inicializado com sucesso');
-    
-    // Iniciar servidor
-    app.listen(PORT, '0.0.0.0', () => {
+    // Iniciar servidor primeiro
+    const server = app.listen(PORT, '0.0.0.0', () => {
       console.log(`🚀 Servidor rodando na porta ${PORT}`);
       console.log(`📍 URL: http://localhost:${PORT}`);
       console.log(`🌍 Ambiente: ${process.env.NODE_ENV}`);
       console.log(`🔒 CORS habilitado para: ${process.env.CORS_ORIGIN}`);
     });
+    
+    // Inicializar banco de dados em background (não bloquear o servidor)
+    initDatabase()
+      .then(() => {
+        console.log('✅ Banco de dados inicializado com sucesso');
+      })
+      .catch(error => {
+        console.error('❌ Erro ao inicializar banco de dados:', error.message);
+        console.warn('⚠️ Servidor continuará rodando sem banco de dados');
+      });
+      
   } catch (error) {
     console.error('❌ Erro ao iniciar servidor:', error);
     process.exit(1);

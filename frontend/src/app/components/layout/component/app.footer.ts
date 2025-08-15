@@ -4,7 +4,9 @@ import { Component } from '@angular/core';
     standalone: true,
     selector: 'app-footer',
     template: `<div class="layout-footer">
-        Todos direitos reservados. Zapchatbr        
+        © {{ currentYear }} EstoqueClinic - Sistema de Gestão de Estoque para Clínicas Estéticas
     </div>`
 })
-export class AppFooter {}
+export class AppFooter {
+    currentYear = new Date().getFullYear();
+}
