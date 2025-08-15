@@ -26,17 +26,27 @@ export const routes: Routes = [
     component: MasterLayoutComponent,
     canActivate: [authGuard],
     children: [
-      // Dashboard
+      // Dashboard principal
       { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard').then(m => m.DashboardComponent) },
-      { path: 'inventory-dashboard', loadComponent: () => import('./components/inventory-dashboard/inventory-dashboard').then(m => m.InventoryDashboardComponent) },
       
-      // Estoque
+      // Módulo de Inventário (lazy loading)
+      {
+        path: 'inventory',
+        loadChildren: () => import('./components/inventory/inventory.routes').then(m => m.INVENTORY_ROUTES)
+      },
+      
+      // Módulo de Gestão (lazy loading)
+      {
+        path: 'management',
+        loadChildren: () => import('./components/management/management.routes').then(m => m.MANAGEMENT_ROUTES)
+      },
+      
+      // Rotas legacy (manter compatibilidade)
+      { path: 'inventory-dashboard', loadComponent: () => import('./components/inventory-dashboard/inventory-dashboard').then(m => m.InventoryDashboardComponent) },
       { path: 'produtos-esteticos', loadComponent: () => import('./components/produtos-esteticos/produto-list').then(m => m.ProdutoListComponent) },
       { path: 'movimentacoes', loadComponent: () => import('./components/movimentacoes/movimentacao-list').then(m => m.MovimentacaoListComponent) },
       { path: 'alertas', loadComponent: () => import('./components/alertas/alerta-list').then(m => m.AlertaListComponent) },
       { path: 'relatorios', loadComponent: () => import('./components/relatorios/relatorio-list').then(m => m.RelatorioListComponent) },
-      
-      // Gestão
       { path: 'clinicas', loadComponent: () => import('./components/clinicas/clinica-list').then(m => m.ClinicaListComponent) },
       { path: 'users', loadComponent: () => import('./components/users/user-list').then(m => m.UserListComponent) },
       { path: 'users/new', loadComponent: () => import('./components/users/user-form').then(m => m.UserFormComponent) },

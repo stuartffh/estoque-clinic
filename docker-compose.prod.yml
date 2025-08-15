@@ -1,0 +1,213 @@
+# ==================================================
+# ESTOQUE CLINIC - DOCKER COMPOSE PRODUÇÃO
+# Configuração otimizada para ambiente de produção
+# ==================================================
+
+version: '3.8'
+
+networks:
+  estoque-clinic-prod:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+volumes:
+  postgres_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+  app_logs:
+    driver: local
+  nginx_certs:
+    driver: local
+  nginx_cache:
+    driver: local
+
+services:
+  # ==========================================
+  # BANCO DE DADOS POSTGRESQL - PRODUÇÃO
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: estoque-clinic-db-prod
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d
+      - ./backups:/backups
+    networks:
+      estoque-clinic-prod:
+        ipv4_address: 172.21.0.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $DB_USER -d $DB_NAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # ==========================================
+  # REDIS CACHE - PRODUÇÃO
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: estoque-clinic-redis-prod
+    restart: always
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --tcp-keepalive 60
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      estoque-clinic-prod:
+        ipv4_address: 172.21.0.11
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  # ==========================================
+  # BACKEND API - PRODUÇÃO
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: estoque-clinic-api-prod
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      
+      # JWT (OBRIGATÓRIO MUDAR EM PRODUÇÃO)
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      
+      # Security
+      API_KEY: ${API_KEY}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      
+      # Production features
+      SWAGGER_ENABLED: false
+      LOG_LEVEL: warn
+    volumes:
+      - app_logs:/app/logs
+      - ./uploads:/app/uploads
+    networks:
+      estoque-clinic-prod:
+        ipv4_address: 172.21.0.20
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+  # ==========================================
+  # FRONTEND - PRODUÇÃO
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: estoque-clinic-frontend-prod
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      estoque-clinic-prod:
+        ipv4_address: 172.21.0.30
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.2'
+
+  # ==========================================
+  # NGINX REVERSE PROXY - PRODUÇÃO
+  # ==========================================
+  nginx:
+    image: nginx:alpine
+    container_name: estoque-clinic-nginx-prod
+    restart: always
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - nginx_certs:/etc/nginx/certs:ro
+      - nginx_cache:/var/cache/nginx
+      - app_logs:/var/log/nginx
+    networks:
+      estoque-clinic-prod:
+        ipv4_address: 172.21.0.40
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'

@@ -26,7 +26,7 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getUsers(page = 1, limit = 10): Observable<{ data: AppUser[]; total: number }> {
-    return this.http.get<any>(`${this.API_URL}/users`, { params: { page, limit } }).pipe(
+    return this.http.get<any>(`${this.API_URL}/api/users`, { params: { page, limit } }).pipe(
       map(res => ({
         data: res.data.map(({ fullName, is_active, ...user }: any) => ({
           ...user,
@@ -43,7 +43,7 @@ export class UserService {
   }
 
   getUser(id: number): Observable<AppUser> {
-    return this.http.get<any>(`${this.API_URL}/users/${id}`).pipe(
+    return this.http.get<any>(`${this.API_URL}/api/users/${id}`).pipe(
       map(({ fullName, is_active, ...user }: any) => ({
         ...user,
         fullName: fullName,
@@ -57,7 +57,7 @@ export class UserService {
   }
 
   createUser(data: AppUser): Observable<any> {
-    return this.http.post(`${this.API_URL}/users`, data).pipe(
+    return this.http.post(`${this.API_URL}/api/users`, data).pipe(
       catchError(error => {
         console.error('❌ Erro ao criar usuário:', error);
         return throwError(() => error);
@@ -67,7 +67,7 @@ export class UserService {
 
   updateUser(id: number, data: Partial<AppUser>): Observable<any> {
     const { password, ...payload } = data;
-    return this.http.put(`${this.API_URL}/users/${id}`, payload).pipe(
+    return this.http.put(`${this.API_URL}/api/users/${id}`, payload).pipe(
       catchError(error => {
         console.error('❌ Erro ao atualizar usuário:', error);
         return throwError(() => error);
@@ -76,7 +76,7 @@ export class UserService {
   }
 
   deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.API_URL}/users/${id}`).pipe(
+    return this.http.delete(`${this.API_URL}/api/users/${id}`).pipe(
       catchError(error => {
         console.error('❌ Erro ao deletar usuário:', error);
         return throwError(() => error);
